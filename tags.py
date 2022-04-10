@@ -95,7 +95,7 @@ catastrophic_risks = ["Asteroids",
 "Supervolcano",
 "Weapons of mass destruction"]
 
-ea_meta = [
+building_effective_altruism = [
 "Altruistic motivation",
 "Building effective altruism",
 "Community",
@@ -430,7 +430,7 @@ tag_types = {
         "Animal Welfare": animal_welfare,
         "AI": ai,
         "Catastrophic Risks": catastrophic_risks,
-        "EA Meta": ea_meta,
+        "Building Effective Altruism": building_effective_altruism,
         "other causes": other_causes
     },
     "Other concepts": {

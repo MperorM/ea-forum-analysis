@@ -106,4 +106,26 @@ fig.autofmt_xdate()
 
 plt.savefig('data/upvotes_per_tag_per_post.png')
 
+###
+# Average comments per post
+###
+
+posts.commentCount = posts.commentCount.fillna(0)
+comments_per_tag = pd.Series(index=unique_tags, data=0)
+
+# TODO: rewrite to list comprehension
+for i in posts.iterrows():
+    for tag in posts.loc[i[0]]['tag_categories']:
+        comments_per_tag[tag] += posts.loc[i[0]]['commentCount']
+
+fig, ax = plt.subplots(figsize = (14,4))
+comments_per_post = comments_per_tag / posts_per_tag
+ax.bar(comments_per_post.sort_values().index, comments_per_post.sort_values())
+ax.set_ylabel("comments", size = 12)
+ax.set_xlabel("tag")
+ax.set_title("Average amount of comments", size = 14)
+fig.autofmt_xdate()
+
+plt.savefig('data/comments_per_tag_per_post.png')
+
 plt.show()
