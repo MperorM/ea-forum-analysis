@@ -5,64 +5,55 @@ import pandas as pd
 import tags
 import matplotlib.pyplot as plt
 
-## uncomment until line 61 recreate dataset
+query = """{
+    posts(input: {
+        terms: {
+            limit: 1000
+            offset: %s
+            meta: null
+        }
+        }) {
+        results {
+            _id
+            title slug pageUrl
+            postedAt
+            baseScore
+            voteCount
+            commentCount
+            meta
+            question
+            url
+            user {
+            username
+            slug
+            }
+            tags {
+            name
+            }
+        }
+    }
+}"""
 
-# query = """{
-#     posts(input: {
-#         terms: {
-#             limit: 1000
-#             offset: %s
-#             meta: null
-#         }
-#         }) {
-#         results {
-#             _id
-#             title slug pageUrl
-#             postedAt
-#             baseScore
-#             voteCount
-#             commentCount
-#             meta
-#             question
-#             url
-#             user {
-#             username
-#             slug
-#             }
-#             tags {
-#             name
-#             }
-#         }
-#     }
-# }"""
+# make series of graphQL query and turn into dataframe
+posts = pd.DataFrame()
+url = 'https://forum.effectivealtruism.org/graphql'
+offset = 0
 
-# # make series of graphQL query and turn into dataframe
-# posts = pd.DataFrame()
-# url = 'https://forum.effectivealtruism.org/graphql'
-# offset = 0
+for i in range(0, 10):
+    offset_query = query % (offset)
+    r = requests.post(url, json={'query': offset_query})
+    json_data = json.loads(r.text)
+    df_data = json_data['data']['posts']['results']
+    posts = posts.append(pd.DataFrame(df_data))
+    offset += 1000
 
-# for i in range(0, 10):
-#     offset_query = query % (offset)
-#     r = requests.post(url, json={'query': offset_query})
-#     json_data = json.loads(r.text)
-#     df_data = json_data['data']['posts']['results']
-#     posts = posts.append(pd.DataFrame(df_data))
-#     offset += 1000
+posts = posts.reset_index(drop=True)
 
-# posts = posts.reset_index(drop=True)
-
-# # clean up tags
-# def tag_cleaner(tag_list):
-#     tag_list = [tag['name'] for tag in tag_list]
-#     return tag_list
-# posts.tags = posts.tags.apply(lambda x: tag_cleaner(x))
-
-# # save to disk
-# posts.to_pickle('data/forum-analysis.pkl')
-
-# Load from disk
-
-posts = pd.read_pickle('data/forum-analysis.pkl')
+# clean up tags
+def tag_cleaner(tag_list):
+    tag_list = [tag['name'] for tag in tag_list]
+    return tag_list
+posts.tags = posts.tags.apply(lambda x: tag_cleaner(x))
 
 # categorise post by tag category
 ## tag category could for example be "global poverty"
